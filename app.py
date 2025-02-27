@@ -18,6 +18,18 @@ def send_json():
     print("send")
     return data
 
+@app.route('/set/<int:on>/<key>')
+def setAlarm(on, key):
+    print('set')
+
+@app.route('/mute/<key>')
+def muteAlarm(key):
+    print('mute')
+
+@app.route('/test')
+def testAlarm():
+    print('test')
+
 
 if __name__ == '__main__':
     app.run()
