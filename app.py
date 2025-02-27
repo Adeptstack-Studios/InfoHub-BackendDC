@@ -3,6 +3,7 @@ from json import dumps
 import requests
 import threading
 import time
+import os
 
 app = Flask(__name__)   
 
@@ -12,13 +13,13 @@ alarm = False
 isAlarm = False
 sKey = ""
 
-open("key.txt", "w")
+if not os.path.exists("key.txt"):
+    open("key.txt", "w")
 with open("key.txt", "r") as file:
     sKey = file.read()
 
 def Timer():
     while True:
-        print("Timer ausgelöst!")
         checkIfOpen()
         time.sleep(1)  # Jede Sekunde ausführen
 
@@ -27,6 +28,7 @@ thread.start()
 
 @app.route('/setup/<key>')
 def setup(key):
+    global sKey
     if sKey == "" and key != "":
         sKey = key
         with open("key.txt", "w") as file:
@@ -37,6 +39,7 @@ def setup(key):
 
 @app.route('/reset/<key>')
 def reset(key):
+    global sKey
     if sKey == key and key != "":
         sKey = ""
         with open("key.txt", "w") as file:
@@ -54,9 +57,18 @@ def send_json():
 
 @app.route('/set/<int:on>/<key>')
 def setAlarm(on, key):
-    print('set')
-    print(on, key)
-    return 'success'
+    global sKey
+    global alarm
+    if sKey == key:
+        if on == 0:
+            alarm = False
+        elif on == 1:
+            alarm = True
+        else:
+            return "ArgumentOutOfRangeException"
+    else:
+        return "authentication error"
+    return "success"
 
 @app.route('/mute/<key>')
 def muteAlarm(key):
@@ -68,6 +80,7 @@ def testAlarm(key):
 
 def checkIfOpen():
     print('open?')
+    print(alarm)
 
 if __name__ == '__main__':
     app.run()
