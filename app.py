@@ -27,23 +27,6 @@ if not os.path.exists("key.txt"):
 with open("key.txt", "r") as file:
     sKey = file.read()
 
-def Timer():
-    global isAlarm
-    try:
-        while True:
-            if isAlarm:
-                doAlarm()
-            else:
-                led.off()
-                buzzer.off()
-            checkIfOpen()
-            time.sleep(0.5)  # Jede Sekunde ausführen
-    except KeyboardInterrupt:
-        print("beende Programm")
-
-thread = threading.Thread(target=Timer, daemon=True)
-thread.start()
-
 @app.route('/setup/<key>')
 def setup(key):
     global sKey
@@ -118,6 +101,23 @@ def checkIfOpen():
 def doAlarm():
     led.toggle()
     buzzer.toggle()
+
+def Timer():
+    global isAlarm
+    try:
+        while True:
+            if isAlarm:
+                doAlarm()
+            else:
+                led.off()
+                buzzer.off()
+            checkIfOpen()
+            time.sleep(0.5)  # Jede Sekunde ausführen
+    except KeyboardInterrupt:
+        print("beende Programm")
+
+thread = threading.Thread(target=Timer, daemon=True)
+thread.start()
 
 if __name__ == '__main__':
     app.run()
