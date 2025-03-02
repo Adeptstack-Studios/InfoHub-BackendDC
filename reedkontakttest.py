@@ -2,7 +2,7 @@ import  RPi.GPIO as gpio
 import time
 
 reedPin = 17
-gpio.setmode(gpio.bcm)
+gpio.setmode(gpio.BCM)
 gpio.setup(reedPin, gpio.IN, pull_up_down=gpio.PUD_UP)
 
 try:
