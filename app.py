@@ -72,7 +72,13 @@ def setAlarm(on, key):
 
 @app.route('/mute/<key>')
 def muteAlarm(key):
-    print('mute')
+    global sKey
+    global isAlarm
+    if sKey == key:
+        isAlarm = False
+        return "success"
+    else:
+        return "authentication error"
 
 @app.route('/test/<key>')
 def testAlarm(key):
