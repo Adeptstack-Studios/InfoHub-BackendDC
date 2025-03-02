@@ -1,4 +1,7 @@
 from flask import Flask, jsonify, request
+from gpiozero import Button
+from gpiozero import LED
+from gpiozero import Buzzer
 from json import dumps
 import requests
 import threading
@@ -7,7 +10,13 @@ import os
 
 app = Flask(__name__)   
 
-gpio = 4 # BCM Numbering
+reedPin = 17
+ledPin = 27
+soundPin = 22
+reed = Button(reedPin, pull_up=True)
+led = LED(27)
+buzzer = Buzzer(22)
+
 isOpen = False
 alarm = False
 isAlarm = False
@@ -19,9 +28,18 @@ with open("key.txt", "r") as file:
     sKey = file.read()
 
 def Timer():
-    while True:
-        checkIfOpen()
-        time.sleep(1)  # Jede Sekunde ausführen
+    global isAlarm
+    try:
+        while True:
+            if isAlarm:
+                doAlarm()
+            else:
+                led.off()
+                buzzer.off()
+            checkIfOpen()
+            time.sleep(0.5)  # Jede Sekunde ausführen
+    except KeyboardInterrupt:
+        print("beende Programm")
 
 thread = threading.Thread(target=Timer, daemon=True)
 thread.start()
@@ -85,8 +103,21 @@ def testAlarm(key):
     print('test')
 
 def checkIfOpen():
-    print('open?')
-    print(alarm)
+    global isAlarm
+    global isOpen
+    global alarm
+    if not reed.is_pressed:
+        isOpen = True
+        if alarm:
+            isAlarm = True
+        print("offen")
+    else:
+        isOpen = False
+        print("geschlossen")
+
+def doAlarm():
+    led.toggle()
+    buzzer.toggle()
 
 if __name__ == '__main__':
     app.run()
